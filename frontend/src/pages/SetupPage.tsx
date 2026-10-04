@@ -89,13 +89,20 @@ export function SetupPage() {
 
   const preview = previews[active];
   const selectedCount = Object.values(included).filter(Boolean).length;
+  const isRuleBook = isRequirementsWorkbook(detail?.inspection?.sheets ?? []);
 
   return (
     <section className="page">
       <Steps current={2} id={id} />
       <p className="eyebrow">Select sheets</p>
       <h1>{detail?.original_filename ?? "Import"}</h1>
-      <p className="lede">Pick the sheets to import, set each header row, and override a column type when the suggestion is wrong. Uncheck a sheet to leave it out. Unrelated sheets are not joined.</p>
+      <p className="lede">Each box is one sheet in the file. Leave it checked to import that sheet. Click the name to preview its columns. Unrelated sheets are not joined.</p>
+      {isRuleBook ? (
+        <p className="banner">
+          This is the requirements file. Payer categories, lab orders, and practices are three separate lists. Leave all three checked.
+          To apply them to the orders, upload this same file under Mapping workbook on <Link to="/uds">Order reconciliation</Link>.
+        </p>
+      ) : null}
       {error ? <p className="banner error">{error}</p> : null}
       {detail?.status === "failed" ? <p className="banner error">{detail.error_message}</p> : null}
       {detail?.status === "completed" ? (
@@ -181,12 +188,32 @@ function toColumn(column: Preview["columns"][number]): ColumnConfig {
 }
 
 function SheetMeta({ sheet }: { sheet: SheetInspection }) {
+  const purpose = sheetPurpose(sheet.name);
   return (
     <small>
+      {purpose ? `${purpose} ` : ""}
       {sheet.physical_rows_exact ? `${sheet.physical_rows} rows` : "over the row limit"} · header {sheet.suggested_header_row}
       {sheet.formula_missing_cache ? ` · ${sheet.formula_missing_cache} uncached formulas` : ""}
     </small>
   );
+}
+
+function sheetPurpose(name: string): string {
+  switch (name.trim().toLowerCase()) {
+    case "payer and categories":
+      return "Which insurance belongs to which payer category.";
+    case "lab co and labs":
+      return "Which order name is a screening or a confirmation.";
+    case "practices":
+      return "Which facility belongs to which practice.";
+    default:
+      return "";
+  }
+}
+
+function isRequirementsWorkbook(sheets: { name: string }[]): boolean {
+  const names = new Set(sheets.map((sheet) => sheet.name.trim().toLowerCase()));
+  return ["payer and categories", "lab co and labs", "practices"].every((name) => names.has(name));
 }
 
 function PreviewPanel({
