@@ -56,6 +56,7 @@ if ($LASTEXITCODE -ge 8) { throw "Could not copy database migrations." }
 $global:LASTEXITCODE = 0
 Copy-Item (Join-Path $Root "backend\alembic.ini") (Join-Path $App "backend\alembic.ini")
 Copy-Item (Join-Path $Root "packaging\launcher.py") (Join-Path $App "launcher.py")
+Copy-Item (Join-Path $Root "packaging\How to use SheetFlow.txt") (Join-Path $App "How to use SheetFlow.txt")
 
 @"
 @echo off

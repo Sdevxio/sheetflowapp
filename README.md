@@ -23,7 +23,7 @@ packaging/build_macos_app.sh
 open dist/SheetFlow.app
 ```
 
-GitHub Actions runs both builds on every push to `main`, and from the Actions tab with “Build SheetFlow”. The Mac artifact is `SheetFlow-macos.zip` (Apple silicon). The Windows artifact is `SheetFlow-windows-x64.zip`. Unzip it and double-click `SheetFlow.cmd`. A console window stays open while the app is running; closing that window quits SheetFlow.
+GitHub Actions runs both builds on every push to `main`, and from the Actions tab with “Build SheetFlow”. The Mac artifact is `SheetFlow-macos.zip` (Apple silicon). The Windows artifact is `SheetFlow-windows-x64.zip`. Each zip includes `How to use SheetFlow.txt`. On Windows, unzip and double-click `SheetFlow.cmd`. A console window stays open while the app is running; closing that window quits SheetFlow.
 
 Double-clicking SheetFlow starts a private service on `127.0.0.1:8765` and opens the dashboard in her browser. A second click only opens the browser. Closing the browser tab leaves processing running. Quit from the Dock stops the service. The next launch finishes an import that was still processing, instead of leaving it stuck.
 

@@ -51,7 +51,14 @@ jobs:
           exit 1
 
       - name: Zip the app
-        run: ditto -c -k --keepParent dist/SheetFlow.app dist/SheetFlow-macos.zip
+        run: |
+          set -euo pipefail
+          stage="${RUNNER_TEMP}/SheetFlow-macos"
+          rm -rf "$stage"
+          mkdir -p "$stage"
+          cp -R dist/SheetFlow.app "$stage/SheetFlow.app"
+          cp "packaging/How to use SheetFlow.txt" "$stage/How to use SheetFlow.txt"
+          ditto -c -k --keepParent "$stage" dist/SheetFlow-macos.zip
 
       - name: Upload the Mac app
         uses: actions/upload-artifact@v4

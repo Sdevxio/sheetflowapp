@@ -1,0 +1,24 @@
+How to use SheetFlow
+
+1. Open the app
+   Mac: double-click SheetFlow. The first time, if the Mac blocks it, right-click SheetFlow and choose Open.
+   Windows: double-click SheetFlow.cmd and leave that window open.
+
+   Your browser opens the dashboard. There is no sign-in.
+   Closing the browser leaves the app running.
+   Mac: quit SheetFlow from the Dock.
+   Windows: close the SheetFlow window.
+
+2. Import a workbook
+   Choose Upload workbook and select an .xls or .xlsx file.
+   On Select sheets, uncheck any sheet you want to leave out. Check the header row and the column types.
+   On Review, look at the accepted and rejected rows. If some rows were rejected, Continue with accepted rows keeps those rows in the issue list and leaves them out of the dashboard.
+   The overview opens when processing finishes.
+
+3. Read the results
+   Overview shows accepted rows, rejected rows, and how many sheets were imported.
+   Data explorer searches, filters, and exports the rows.
+   Validation shows why a row was rejected, with the original value.
+   Imports reopens an earlier file, retries a failed import, or deletes one.
+
+Your workbooks and results stay on this computer.
