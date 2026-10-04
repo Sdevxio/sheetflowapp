@@ -5,7 +5,9 @@ How to use SheetFlow
    If the Mac warns about that file, right-click it and choose Open.
    That clears the message that says SheetFlow is damaged. Do not move the app to the Trash.
    After the first time, double-click SheetFlow.
-   Windows: double-click SheetFlow.cmd and leave that window open.
+   Windows: right-click the zip and choose Extract all. Open the SheetFlow-windows folder.
+   Double-click SheetFlow.cmd there, not from inside the zip. Leave the black window open.
+   If it closes at once, it will now stay open and show the error.
 
    Your browser opens the dashboard. There is no sign-in.
    Closing the browser leaves the app running.

@@ -7,6 +7,7 @@ import socket
 import sys
 import threading
 import time
+import traceback
 import webbrowser
 from pathlib import Path
 
@@ -40,11 +41,15 @@ def _backend_root() -> Path:
 
 def _acquire_lock(path: Path):
     path.parent.mkdir(parents=True, exist_ok=True)
-    handle = path.open("a+")
+    handle = path.open("a+b")
     if os.name == "nt":
         import msvcrt
 
         try:
+            if handle.seek(0, os.SEEK_END) == 0:
+                handle.write(b"\0")
+                handle.flush()
+            handle.seek(0)
             msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
         except OSError:
             handle.close()
@@ -83,6 +88,21 @@ def _log_to_file(path: Path) -> None:
 
 
 def main() -> int:
+    try:
+        return _serve()
+    except Exception:
+        traceback.print_exc()
+        try:
+            log_path = data_dir() / "sheetflow.log"
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            with log_path.open("a", encoding="utf-8") as handle:
+                traceback.print_exc(file=handle)
+        except Exception:
+            pass
+        return 1
+
+
+def _serve() -> int:
     data = data_dir()
     data.mkdir(parents=True, exist_ok=True)
     lock = _acquire_lock(data / "sheetflow.lock")
@@ -92,7 +112,8 @@ def main() -> int:
                 webbrowser.open(URL)
                 return 0
             time.sleep(0.1)
-        print("SheetFlow is already starting. If the page does not open, quit it from the Dock and try again.", file=sys.stderr)
+        where = "close the SheetFlow window" if sys.platform == "win32" else "quit it from the Dock"
+        print(f"SheetFlow is already starting. If the page does not open, {where} and try again.", file=sys.stderr)
         return 1
 
     os.environ["SHEETFLOW_DATA_DIR"] = str(data)
