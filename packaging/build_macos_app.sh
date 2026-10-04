@@ -27,8 +27,12 @@ rm -rf "$APP/Contents/Resources/frontend/dist"
 cp -R "$ROOT/frontend/dist" "$APP/Contents/Resources/frontend/dist"
 
 echo "Downloading a relocatable Python 3.13 for $TRIPLE"
+API_HEADERS=(-H "Accept: application/vnd.github+json" -H "User-Agent: sheetflow-build")
+if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+  API_HEADERS+=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
+fi
 ASSET_URL="$(
-  curl -fsSL "https://api.github.com/repos/astral-sh/python-build-standalone/releases/latest" |
+  curl -fsSL "${API_HEADERS[@]}" "https://api.github.com/repos/astral-sh/python-build-standalone/releases/latest" |
     TRIPLE="$TRIPLE" python3 -c '
 import json, os, sys
 triple = os.environ["TRIPLE"]

@@ -1,0 +1,120 @@
+name: Build SheetFlow
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sheetflow-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos:
+    name: macOS
+    runs-on: macos-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build SheetFlow.app
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: packaging/build_macos_app.sh
+
+      - name: Start the bundled app and check health
+        run: |
+          set -euo pipefail
+          export SHEETFLOW_DATA_DIR="${RUNNER_TEMP}/sheetflow-data"
+          dist/SheetFlow.app/Contents/MacOS/sheetflow &
+          pid=$!
+          trap 'kill "$pid" >/dev/null 2>&1 || true' EXIT
+          for _ in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8765/api/health; then
+              echo
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "SheetFlow did not become healthy"
+          cat "${SHEETFLOW_DATA_DIR}/sheetflow.log" || true
+          exit 1
+
+      - name: Zip the app
+        run: ditto -c -k --keepParent dist/SheetFlow.app dist/SheetFlow-macos.zip
+
+      - name: Upload the Mac app
+        uses: actions/upload-artifact@v4
+        with:
+          name: SheetFlow-macos
+          path: dist/SheetFlow-macos.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build the Windows folder
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: ./packaging/build_windows_app.ps1
+
+      - name: Start the bundled app and check health
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $env:SHEETFLOW_DATA_DIR = Join-Path $env:RUNNER_TEMP "sheetflow-data"
+          $cmd = Join-Path (Get-Location) "dist\SheetFlow-windows\SheetFlow.cmd"
+          $app = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", $cmd -PassThru -WindowStyle Hidden
+          try {
+            $healthy = $false
+            foreach ($attempt in 1..90) {
+              try {
+                $health = Invoke-RestMethod -Uri "http://127.0.0.1:8765/api/health"
+                $health | ConvertTo-Json -Compress
+                $healthy = $true
+                break
+              } catch {
+                Start-Sleep -Seconds 1
+              }
+            }
+            if (-not $healthy) {
+              $log = Join-Path $env:SHEETFLOW_DATA_DIR "sheetflow.log"
+              if (Test-Path $log) { Get-Content $log }
+              throw "SheetFlow did not become healthy"
+            }
+          } finally {
+            if ($app -and -not $app.HasExited) {
+              & taskkill.exe /PID $app.Id /T /F | Out-Null
+            }
+          }
+
+      - name: Upload the Windows app
+        uses: actions/upload-artifact@v4
+        with:
+          name: SheetFlow-windows-x64
+          path: dist/SheetFlow-windows-x64.zip
+          if-no-files-found: error
+          retention-days: 14

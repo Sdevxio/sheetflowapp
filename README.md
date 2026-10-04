@@ -16,12 +16,14 @@ There is no sample business workbook in this repository. `samples/synthetic_demo
 
 ## SheetFlow on a Mac
 
-Build the app on the Mac she will use. This script produces an app for the processor of the machine it runs on, Apple silicon or Intel. It does not build a Windows installer. A Windows build has to be made on Windows, using the same `packaging/launcher.py`. On Windows the data folder is `%LOCALAPPDATA%\SheetFlow`.
+Build the app on the Mac she will use. This script produces an app for the processor of the machine it runs on, Apple silicon or Intel. GitHub Actions builds that Mac app and a Windows folder from the same `packaging/launcher.py`. On Windows the data folder is `%LOCALAPPDATA%\SheetFlow`.
 
 ```bash
 packaging/build_macos_app.sh
 open dist/SheetFlow.app
 ```
+
+GitHub Actions runs both builds on every push to `main`, and from the Actions tab with “Build SheetFlow”. The Mac artifact is `SheetFlow-macos.zip` (Apple silicon). The Windows artifact is `SheetFlow-windows-x64.zip`. Unzip it and double-click `SheetFlow.cmd`. A console window stays open while the app is running; closing that window quits SheetFlow.
 
 Double-clicking SheetFlow starts a private service on `127.0.0.1:8765` and opens the dashboard in her browser. A second click only opens the browser. Closing the browser tab leaves processing running. Quit from the Dock stops the service. The next launch finishes an import that was still processing, instead of leaving it stuck.
 
@@ -159,6 +161,6 @@ The suite covers `.xls` and `.xlsx`, header rows, leading zeros, invalid and amb
 - A formula with a genuinely blank result is reported like a missing cache.
 - Very large uncompressed workbooks can use more memory than the upload byte limit suggests. Row and column caps stop the import, but they are not a full zip-bomb defense.
 - Docker Compose was not executed in this environment.
-- The Mac app is ad-hoc signed. It is not notarized, and a Windows installer is not built from this Mac.
+- The Mac app is ad-hoc signed. It is not notarized. The Windows download is a folder with its own Python, opened from `SheetFlow.cmd`, not a single signed installer.
 - SheetFlow does not watch a folder. Files are processed only while the app is open and she has chosen the workbook.
 # sheetflowapp
