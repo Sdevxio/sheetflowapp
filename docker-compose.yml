@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: symphony
+      POSTGRES_PASSWORD: symphony
+      POSTGRES_DB: symphony
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U symphony -d symphony"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://symphony:symphony@db:5432/symphony
+      STORAGE_DIR: /data/storage
+      CORS_ORIGINS: http://127.0.0.1:5173,http://localhost:5173
+      WORKER_ENABLED: "true"
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - uploads:/data/storage
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_PROXY_TARGET: http://backend:8000
+    ports:
+      - "127.0.0.1:5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  uploads:
