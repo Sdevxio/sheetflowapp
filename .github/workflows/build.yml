@@ -56,8 +56,10 @@ jobs:
           stage="${RUNNER_TEMP}/SheetFlow-macos"
           rm -rf "$stage"
           mkdir -p "$stage"
-          cp -R dist/SheetFlow.app "$stage/SheetFlow.app"
+          ditto dist/SheetFlow.app "$stage/SheetFlow.app"
           cp "packaging/How to use SheetFlow.txt" "$stage/How to use SheetFlow.txt"
+          cp "packaging/macos/Open SheetFlow.command" "$stage/Open SheetFlow.command"
+          chmod +x "$stage/Open SheetFlow.command"
           ditto -c -k --keepParent "$stage" dist/SheetFlow-macos.zip
 
       - name: Upload the Mac app

@@ -1,7 +1,10 @@
 How to use SheetFlow
 
 1. Open the app
-   Mac: double-click SheetFlow. The first time, if the Mac blocks it, right-click SheetFlow and choose Open.
+   Mac, first time: double-click "Open SheetFlow.command". Leave it in the same folder as SheetFlow.
+   If the Mac warns about that file, right-click it and choose Open.
+   That clears the message that says SheetFlow is damaged. Do not move the app to the Trash.
+   After the first time, double-click SheetFlow.
    Windows: double-click SheetFlow.cmd and leave that window open.
 
    Your browser opens the dashboard. There is no sign-in.

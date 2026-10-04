@@ -29,7 +29,7 @@ Double-clicking SheetFlow starts a private service on `127.0.0.1:8765` and opens
 
 Her database, original workbooks, and `sheetflow.log` live in `~/Library/Application Support/SheetFlow`, separate from the app. History can download a zip of that database and those workbooks, and can restore it after confirmation. Restore waits until nothing is queued or processing.
 
-The first open may require right-click → Open. The app is signed only on this computer, not by Apple. Fonts are stored in the app, so the dashboard does not need a network connection. She chooses a file while the app is open. SheetFlow does not watch a folder in the background.
+The first open after download is `Open SheetFlow.command`, which clears the macOS “damaged” warning. The app is signed only on this computer, not by Apple. Fonts are stored in the app, so the dashboard does not need a network connection. She chooses a file while the app is open. SheetFlow does not watch a folder in the background.
 
 ## Local setup
 
