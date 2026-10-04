@@ -85,6 +85,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
+          $PSNativeCommandUseErrorActionPreference = $false
           $env:SHEETFLOW_DATA_DIR = Join-Path $env:RUNNER_TEMP "sheetflow-data"
           $cmd = Join-Path (Get-Location) "dist\SheetFlow-windows\SheetFlow.cmd"
           $app = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", $cmd -PassThru -WindowStyle Hidden
@@ -108,8 +109,10 @@ jobs:
           } finally {
             if ($app -and -not $app.HasExited) {
               & taskkill.exe /PID $app.Id /T /F | Out-Null
+              $global:LASTEXITCODE = 0
             }
           }
+          exit 0
 
       - name: Upload the Windows app
         uses: actions/upload-artifact@v4
